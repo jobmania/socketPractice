@@ -21,8 +21,6 @@ public class FileTransferReceiver {
         int port =  9999;  //int port =  9999;
         String filename = "test.txt";              //String filename = "test.mp4"; //저장할 파일 이름
 
-        // for 원격 위치 파일 이름 다넣고 map으로!!
-
 
 
         try {

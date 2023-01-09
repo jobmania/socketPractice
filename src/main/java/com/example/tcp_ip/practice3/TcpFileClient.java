@@ -56,7 +56,7 @@ public class TcpFileClient {
             }
             bos.flush();//현재 버퍼에 저장되어 있는 내용을 클라이언트로 전송하고 버퍼를 비운다.
 
-//           여기까지 for문 돌고
+
             System.out.println("파일 전송 완료..");
 
             //스트림과 소켓 닫기

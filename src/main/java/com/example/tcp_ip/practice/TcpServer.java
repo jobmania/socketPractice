@@ -1,8 +1,7 @@
-package com.example.tcp_ip.practice4;
+package com.example.tcp_ip.practice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -14,8 +13,8 @@ public class TcpServer {
     public static void main(String[] args) throws IOException {
 
         //경로에 저장...
-//        File saveDir = new File("C:/Users/admin/temp");
-        File saveDir = new File("C:/Users/SON/son/testServer");
+        File saveDir = new File("C:/Users/admin/servertest");
+//        File saveDir = new File("C:/Users/SON/son/testServer");
 
         ServerSocket serverSocket = null;
         Socket socket = null;
@@ -32,7 +31,7 @@ public class TcpServer {
             //클라이언트가 접속되었을 때 첫번째로 보내온 파일이름을 받는다.
             String fileName = dis.readUTF();
 
-            //File saveFile = new File(saveDir, "멍멍.jpg");
+            //File saveFile = new File(saveDir, "파일이름..");
             File saveFile = new File(saveDir, fileName);
 
             //파일 출력용 스트림 객체 생성

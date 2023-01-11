@@ -1,8 +1,7 @@
-package com.example.tcp_ip.practice4;
+package com.example.tcp_ip.practice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.Socket;
@@ -12,7 +11,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.Scanner;
 
 @Slf4j
 public class TcpClient {
@@ -22,8 +20,8 @@ public class TcpClient {
         //////// 로컬 파일 정보 ///////////
 
         log.info("클라이언트 실행" + LocalDateTime.now());
-//        File dir = new File("C:/Users/admin/temp");
-        File dir = new File("C:/Users/SON/son/local");
+//        File dir = new File("C:/Users/SON/son/local");
+        File dir = new File("C:/Users/admin/local");
 
         //해당 경로에 파일 리스트 출력
         File files[] = dir.listFiles();
@@ -36,9 +34,10 @@ public class TcpClient {
             FileTime lastModifiedTime = Files.getLastModifiedTime(filePath);
 
             // key(이름) : value(수정된 날짜)로 저장..
-            String fileName = String.valueOf(files[i]).substring(23);
+            String fileName = String.valueOf(files[i]).substring(21);
             //디렉토리 명 빼고 순수 파일명만 담기
             map.put(fileName, String.valueOf(lastModifiedTime));
+
 
             //////////////////////////////////////////////////////
 
@@ -46,7 +45,7 @@ public class TcpClient {
 
 
             Socket socket = null;
-            OutputStream out;
+
 
 
 
@@ -81,7 +80,9 @@ public class TcpClient {
                 bos.flush();//현재 버퍼에 저장되어 있는 내용을 클라이언트로 전송하고 버퍼를 비운다.
 
 
-                System.out.println("파일 전송 완료..");
+                System.out.println("file transfer complete");
+
+
 
                 //스트림과 소켓 닫기
                 bis.close();
@@ -90,7 +91,7 @@ public class TcpClient {
 
 
             } catch (Exception e) {
-                System.out.println("파일 전송 실패 : " + e.getMessage());
+                System.out.println("fail to transfer : " + e.getMessage());
             }
 
         }

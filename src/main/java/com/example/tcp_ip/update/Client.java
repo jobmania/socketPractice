@@ -1,6 +1,11 @@
 package com.example.tcp_ip.update;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.file.*;
 import java.util.List;
 
@@ -15,7 +20,7 @@ public class Client {
 
         WatchService watchService = FileSystems.getDefault().newWatchService();  // 특정 디렉토리에 변경사항을 감지한다.
         // 조사할 디렉터리 경로 입력
-        Path path = FileSystems.getDefault().getPath("C:\\clientTest");
+        Path path = FileSystems.getDefault().getPath("C:\\socket\\clientTest");
 
 
         path.register(watchService,
@@ -27,7 +32,6 @@ public class Client {
 
         Thread thread = getThread(watchService);
         thread.start();
-
 
 
 
@@ -47,22 +51,52 @@ public class Client {
                         // 이벤트가 발생한 경로
                         Path paths = (Path) event.context();
                         if (kind.equals(StandardWatchEventKinds.ENTRY_CREATE)) {
+
+                            /// 1. 파일 생성.
                             System.out.println("디렉토리에 " + paths.getFileName() + "파일이 생성되었습니다.");
+                            Socket socket = new Socket("127.0.0.1", 9999);  // 접속하려는 ip,port
+                            sendFileToServer(paths, socket);
+                            socket.close(); // 파일 정보를 전송한 후에 소켓을 닫는다.
+
                         } else if (kind.equals(StandardWatchEventKinds.ENTRY_DELETE)) {
+                            /// 2. 파일 삭제
                             System.out.println("디렉토리에 " + paths.getFileName() + "파일이 삭제되었습니다.");
+
+                            Socket socket = new Socket("127.0.0.1", 9999);  // 접속하려는 ip,port
+                            socket.close();
+
                         } else if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
+                            /// 3. 파일 수정..
                             System.out.println("디렉토리에 " + paths.getFileName() + "파일이 수정되었습니다.");
+
+                            Socket socket = new Socket("127.0.0.1", 9999);  // 접속하려는 ip,port
+                            socket.close();
                         } else if (kind.equals(StandardWatchEventKinds.OVERFLOW)) {
                             System.out.println("이벤트가 손실되거나 삭제되었습니다.");
                         }
+                       ;
                     }
 
+
+
                     watchKey.reset(); // WatchKey를 리셋하여 다음 이벤트를 처리할 수 있도록 한다.
-                } catch (InterruptedException e) {
+                } catch (InterruptedException | IOException e) {
                     throw new RuntimeException(e);
+
                 }
             }
         });
+    }
+
+    private static void sendFileToServer(Path paths, Socket socket ) throws IOException {
+        //Socket용 OutputStream 객체 생성
+        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+        String fileName = String.valueOf(paths.getFileName());
+        dos.writeUTF(fileName);  // 파일 이름 전송
+
+        BufferedOutputStream bos = new BufferedOutputStream(dos);
+        bos.flush();//현재 버퍼에 저장되어 있는 내용을 클라이언트로 전송하고 버퍼를 비운다.
+
     }
 }
 

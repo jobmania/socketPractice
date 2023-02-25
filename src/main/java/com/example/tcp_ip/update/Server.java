@@ -41,6 +41,7 @@ public class Server {
                     }
 
                     bos.flush();
+                    socket.close();
 
                     System.out.println("save complete");
 

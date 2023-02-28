@@ -1,15 +1,13 @@
 package com.example.tcp_ip.update;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.*;
 import java.util.List;
 
 public class Client {
+    private static final String localPath = "C:\\socket\\clientTest";
 
     // WatchService에 디렉토리 등록을 의미하는 객체
     static WatchKey watchKey;
@@ -20,7 +18,7 @@ public class Client {
 
         WatchService watchService = FileSystems.getDefault().newWatchService();  // 특정 디렉토리에 변경사항을 감지한다.
         // 조사할 디렉터리 경로 입력
-        Path path = FileSystems.getDefault().getPath("C:\\socket\\clientTest");
+        Path path = FileSystems.getDefault().getPath(localPath);
 
 
         path.register(watchService,
@@ -55,7 +53,11 @@ public class Client {
                             /// 1. 파일 생성.
                             System.out.println("디렉토리에 " + paths.getFileName() + "파일이 생성되었습니다.");
                             Socket socket = new Socket("127.0.0.1", 9999);  // 접속하려는 ip,port
-                            sendFileToServer(paths, socket);
+
+                            String fileName = String.valueOf(paths.getFileName());
+                            String filePath = localPath + "/" + fileName;
+
+                            sendFileToServer(filePath, socket);
                             socket.close(); // 파일 정보를 전송한 후에 소켓을 닫는다.
 
                         } else if (kind.equals(StandardWatchEventKinds.ENTRY_DELETE)) {
@@ -70,6 +72,10 @@ public class Client {
                             System.out.println("디렉토리에 " + paths.getFileName() + "파일이 수정되었습니다.");
 
                             Socket socket = new Socket("127.0.0.1", 9999);  // 접속하려는 ip,port
+                            String fileName = String.valueOf(paths.getFileName());
+                            String filePath = localPath + "/" + fileName;
+
+                            sendFileToServer(filePath, socket);
                             socket.close();
                         } else if (kind.equals(StandardWatchEventKinds.OVERFLOW)) {
                             System.out.println("이벤트가 손실되거나 삭제되었습니다.");
@@ -88,13 +94,27 @@ public class Client {
         });
     }
 
-    private static void sendFileToServer(Path paths, Socket socket ) throws IOException {
+    private static void sendFileToServer(String filePath, Socket socket ) throws IOException {
         //Socket용 OutputStream 객체 생성
         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        String fileName = String.valueOf(paths.getFileName());
-        dos.writeUTF(fileName);  // 파일 이름 전송
-
         BufferedOutputStream bos = new BufferedOutputStream(dos);
+
+
+        //파일 입력용 InputStream 객체 생성
+        File file = new File(filePath);
+        BufferedInputStream bis = new BufferedInputStream(
+                new FileInputStream(file));
+
+        byte[] temp = new byte[1024];
+        int length = 0;
+
+        // 파일 내용을 읽어와 소켓으로 전송하기
+        while((length = bis.read(temp)) > 0){
+            //읽어온 데이터 갯수가 0개보다 많으면 출력
+            bos.write(temp, 0, length);
+        }
+
+        dos.writeUTF(file.getName());  // 파일 이름 전송
         bos.flush();//현재 버퍼에 저장되어 있는 내용을 클라이언트로 전송하고 버퍼를 비운다.
 
     }

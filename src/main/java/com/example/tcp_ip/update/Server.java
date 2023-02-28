@@ -7,9 +7,11 @@ import java.nio.file.WatchService;
 
 public class Server {
 
+    private final static String serverPath = "C:\\socket\\serverTest";
+
     public static void main(String[] args) {
 
-        File saveDir = new File("C:\\socket\\serverTest");
+        File saveDir = new File(serverPath);
 
         try {
             ServerSocket serverSocket = new ServerSocket(9999);

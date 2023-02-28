@@ -69,7 +69,15 @@ public class Client {
                             /// 2. 파일 삭제
                             System.out.println("디렉토리에 " + paths.getFileName() + "파일이 삭제되었습니다.");
 
+                            String fileName = String.valueOf(paths.getFileName());
+                            String filePath = localPath + "/" + fileName;
+                            File file = new File(filePath);
+
                             Socket socket = new Socket("127.0.0.1", 9999);  // 접속하려는 ip,port
+                            // 파일 삭제를 서버에 알림
+                            sendFileDeletionNotification(file, socket);
+
+
                             socket.close();
 
                         } else if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
@@ -162,6 +170,22 @@ public class Client {
         String cutPath = folderPath.substring(localPath.length()+1);
         String message = "FOLDER_CREATED#" + cutPath;
 
+
+        dos.writeUTF(message);
+        bos.flush();
+
+    }
+
+    private static void sendFileDeletionNotification(File file, Socket socket) throws IOException {
+
+        //Socket용 OutputStream 객체 생성
+        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+        BufferedOutputStream bos = new BufferedOutputStream(dos);
+
+
+        String filePath = file.getAbsolutePath();
+        String cutPath = filePath.substring(localPath.length() + 1);
+        String message = "FILE_DELETED#" + cutPath;
 
         dos.writeUTF(message);
         bos.flush();

@@ -36,7 +36,10 @@ public class Server {
 
                         if (tokens[0].equals("FOLDER_CREATED")) {
                             handleFolderCreationNotification(tokens[1]);
+                        } else if (tokens[0].equals("FILE_DELETED")) {
+                            handleDeleteFile(tokens[1]);
                         }
+
 
                     }else {
                         //File saveFile = new File(saveDir, "파일이름..");
@@ -88,6 +91,15 @@ public class Server {
             System.out.println("폴더 생성 실패: " + folderPath);
         }
     }
+
+    public static void handleDeleteFile(String fileName){
+        String filePath = serverPath + "/" + fileName;
+        File file = new File(filePath);
+        if(file.exists()){
+            if(file.delete()) System.out.println(fileName + "파일 삭제");;
+        }
+    }
+
 }
 
 

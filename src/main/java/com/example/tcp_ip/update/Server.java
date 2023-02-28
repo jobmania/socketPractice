@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.nio.file.WatchService;
 
 public class Server {
-
     private final static String serverPath = "C:\\socket\\serverTest";
 
     public static void main(String[] args) {
@@ -20,7 +19,6 @@ public class Server {
                 Socket socket = serverSocket.accept();
 
                 try {
-
                     InputStream is = socket.getInputStream();
 
                     //소켓용 입력 스트림 객체 생성
@@ -59,6 +57,10 @@ public class Server {
                         }
 
                         bos.flush();
+                        is.close();
+                        dis.close();
+                        bis.close();
+                        bos.close();
                         socket.close();
                         System.out.println("save file complete");
                     }

@@ -13,10 +13,12 @@ public class Client {
     static WatchKey watchKey;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        // 1. 파일 변경 감지 기능 구현
-        // https://scshim.tistory.com/460
 
-        WatchService watchService = FileSystems.getDefault().newWatchService();  // 특정 디렉토리에 변경사항을 감지한다.
+        // https://scshim.tistory.com/460
+        // 1. 파일 변경 감지 기능 구현
+        // 특정 디렉토리에 변경사항을 감지한다.
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+
         // 조사할 디렉터리 경로 입력
         Path path = FileSystems.getDefault().getPath(localPath);
 
@@ -25,7 +27,8 @@ public class Client {
                 StandardWatchEventKinds.ENTRY_MODIFY,
                 StandardWatchEventKinds.ENTRY_CREATE,
                 StandardWatchEventKinds.ENTRY_DELETE,
-                StandardWatchEventKinds.OVERFLOW  // 이벤트 운영 체제에서 이벤트가 소실되었거나 버려진 경우에 알아서 발생
+                // 이벤트 운영 체제에서 이벤트가 소실되었거나 버려진 경우에 알아서 발생
+                StandardWatchEventKinds.OVERFLOW
         );
 
         Thread thread = getThread(watchService);
@@ -90,8 +93,6 @@ public class Client {
                             File file = new File(filePath);
 
 
-
-
                             sendFileToServer(file, socket);
                             socket.close();
                         } else if (kind.equals(StandardWatchEventKinds.OVERFLOW)) {
@@ -133,7 +134,9 @@ public class Client {
 
         dos.writeUTF(file.getName());  // 파일 이름 전송
         bos.flush();//현재 버퍼에 저장되어 있는 내용을 클라이언트로 전송하고 버퍼를 비운다.
-
+        bis.close();
+        dos.close();
+        bos.close();
     }
 
 
@@ -173,6 +176,8 @@ public class Client {
 
         dos.writeUTF(message);
         bos.flush();
+        dos.close();
+        bos.close();
 
     }
 
@@ -189,6 +194,8 @@ public class Client {
 
         dos.writeUTF(message);
         bos.flush();
+        dos.close();
+        bos.close();
 
     }
 }

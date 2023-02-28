@@ -19,33 +19,50 @@ public class Server {
             while (true) {
                 Socket socket = serverSocket.accept();
 
-                //소켓용 입력 스트림 객체 생성
-                DataInputStream dis = new DataInputStream(socket.getInputStream());
-                BufferedInputStream bis = new BufferedInputStream(dis);
-
                 try {
+
+                    InputStream is = socket.getInputStream();
+
+                    //소켓용 입력 스트림 객체 생성
+                    DataInputStream dis = new DataInputStream(is);
+                    BufferedInputStream bis = new BufferedInputStream(dis);
+
                     //클라이언트가 접속되었을 때 첫번째로 보내온 파일이름을 받는다.
                     String fileName = dis.readUTF();
 
-                    //File saveFile = new File(saveDir, "파일이름..");
-                    File saveFile = new File(saveDir, fileName);
 
-                    //파일 출력용 스트림 객체 생성
-                    BufferedOutputStream bos = new BufferedOutputStream(
-                            new FileOutputStream(saveFile)
-                    );
+                    if(fileName.contains("#")){
+                        String[] tokens = fileName.split("#");
 
-                    byte[] temp = new byte[1024];
-                    int length = 0;
+                        if (tokens[0].equals("FOLDER_CREATED")) {
+                            handleFolderCreationNotification(tokens[1]);
+                        }
 
-                    while ((length = bis.read(temp)) > 0) {
-                        bos.write(temp, 0, length);
+                    }else {
+                        //File saveFile = new File(saveDir, "파일이름..");
+                        File saveFile = new File(saveDir, fileName);
+
+
+                        //파일 출력용 스트림 객체 생성
+                        BufferedOutputStream bos = new BufferedOutputStream(
+                                new FileOutputStream(saveFile)
+                        );
+
+                        byte[] temp = new byte[1024];
+                        int length = 0;
+
+                        while ((length = bis.read(temp)) > 0) {
+                            bos.write(temp, 0, length);
+                        }
+
+                        bos.flush();
+                        socket.close();
+                        System.out.println("save file complete");
                     }
 
-                    bos.flush();
-                    socket.close();
 
-                    System.out.println("save complete");
+
+
 
                 } catch (IOException e) {
                     // 클라이언트와의 연결이 끊어졌을 때, 예외를 발생시켜서 while 루프를 빠져나옴
@@ -58,6 +75,18 @@ public class Server {
             throw new RuntimeException(e);
         }
 
+    }
+
+
+    public static void handleFolderCreationNotification(String folderName) {
+
+        String folderPath = serverPath+"/"+folderName;
+        File folder = new File(folderPath);
+        if (folder.mkdir()) {
+            System.out.println("폴더 생성 완료: " + folderPath);
+        } else {
+            System.out.println("폴더 생성 실패: " + folderPath);
+        }
     }
 }
 
